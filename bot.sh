@@ -22,7 +22,7 @@ do
 			  listar.apagar
 			;;
 			item_valor)
-				listar.precos
+				listar.preco
       ;;
     esac
 	) &
