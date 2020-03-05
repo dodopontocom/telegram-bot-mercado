@@ -4,7 +4,7 @@ Vai fazer a compra da casa? faça sua lista do mercado e leve o bot com você.
 ### Como testar ?
 - Tenha em mãos o token do seu bot [veja aqui](https://core.telegram.org/bots#6-botfather)
 - Funciona em ambiente linux apenas
-- [Dependências](https://github.com/shellscriptx/shellbot#requerimentos)
+- [Dependências](https://github.com/shellscriptx/shellbot#requerimentos) - bash,jq,curl
 
 ### Inicie o bot em 3 passos
 1 - Clone o repositório em seu ambiente linux:
