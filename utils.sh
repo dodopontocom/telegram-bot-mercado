@@ -13,7 +13,7 @@ done
 
 # Saber se tem o telegram token e ao menos um id de adminitrador exportado como variável de ambiente do sistema
 # Essas variáveis devem ser setadas no arquivo .definitions.sh
-helper.validate_vars TELEGRAM_TOKEN NOTIFICATION_IDS
+helper.validate_vars TELEGRAM_TOKEN
 
 helper.get_api
 exitOnError "Erro ao tentar baixar API ShellBot" $?
