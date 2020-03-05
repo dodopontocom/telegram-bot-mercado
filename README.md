@@ -9,7 +9,7 @@ Vai fazer a compra da casa? faça sua lista do mercado e leve o bot com você.
 ```shell
 $ git clone https://github.com/dodopontocom/telegram-bot-mercado.git && cd telegram-bot-mercado
 ```
-2 - Adicione o token e mais algumas informações no arquivo de definições executando o comando abaixo:
+2 - Adicione o token e mais algumas informações no arquivo de definições executando o comando abaixo:  
 **`Não se esqueça de substituir o TOKEN!!!`**
 ```shell
 $ cat << EOF > .definitions.sh
