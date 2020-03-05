@@ -27,3 +27,7 @@ $ chmod +x ./bot.sh && ./bot.sh
 ```
 
 Agora é só enviar os itens para o seu bot...
+
+### Saiba mais sobre o ShellBot
+
+[veja aqui](https://github.com/shellscriptx/shellbot/wiki)
