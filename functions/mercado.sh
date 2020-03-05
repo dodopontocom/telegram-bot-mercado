@@ -24,7 +24,7 @@ listar.apagar(){
 }
 
 # procura no site do tenda atacado e retorna o primeiro resultado do produto e preço
-product.search() {
+listar.preco() {
   local product_name first_found product_price message
 
   #product_name=${message_text/ /%20}
