@@ -1,56 +1,195 @@
 #!/bin/bash
 
+_WARN="⚠️"
+_OK="✅"
+_LUPA="🔍"
+_CART="🛒"
+
 listar.compras(){
-        local item
+        local item file_list folder
         item=$1
         
-        botao_itens=''
-        ShellBot.InlineKeyboardButton --button 'botao_itens' --text "✅" --callback_data 'item_comprado' --line 1
-        ShellBot.InlineKeyboardButton --button 'botao_itens' --text "preços 🔍" --callback_data 'item_valor' --line 1
-        keyboard_itens="$(ShellBot.InlineKeyboardMarkup -b 'botao_itens')"
+        folder="${message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
 
+        if [[ ! -f "${file_list}" ]]; then
+            mkdir -p ${file_list%%_*}
+        fi
+        echo "${_WARN},${item}" >> ${file_list}
+                        
         ShellBot.deleteMessage --chat_id ${message_chat_id[$id]} --message_id ${message_message_id[$id]}
-        ShellBot.sendMessage    --chat_id ${message_chat_id[$id]} \
-                                --text "*${item}*" \
-                                --parse_mode markdown \
-                                --reply_markup "$keyboard_itens"
 }
 
-listar.apagar(){
+listar.go_shopping() {
+    local file_list folder
+    
+    if [[ ${callback_query_message_chat_id[$id]} ]]; then
+        folder="${callback_query_message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    else
+        folder="${message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    fi
+
+    if [[ -f ${file_list} ]]; then
         
-        ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]}
-        ShellBot.deleteMessage  --chat_id ${callback_query_message_chat_id[$id]} \
-                                --message_id ${callback_query_message_message_id[$id]}
+        botao_go_shopping=''
+
+        count=1
+        while read line; do
+            rem=$(( ${count} % 3))
+            if [[ ${rem} -eq 0 ]]; then
+                count=$((count+1))
+                ShellBot.InlineKeyboardButton --button 'botao_go_shopping' --text "$(echo ${line} | tr ',' ' ')" --callback_data "${line}" --line ${count}
+            else
+                ShellBot.InlineKeyboardButton --button 'botao_go_shopping' --text "$(echo ${line} | tr ',' ' ')" --callback_data "${line}" --line ${count}                
+                count=$((count+1))
+            fi
+        done < ${file_list}
+        
+        ShellBot.InlineKeyboardButton --button 'botao_go_shopping'\
+            --text "${_CART} - Finalizar" \
+            --callback_data "_concluir" \
+            --line 999
+        ShellBot.InlineKeyboardButton --button 'botao_go_shopping'\
+            --text "-= Refresh =-" \
+            --callback_data "Refresh" \
+            --line 999
+
+        keyboard_go_shopping="$(ShellBot.InlineKeyboardMarkup -b 'botao_go_shopping')"
+        
+        if [[ ${message_chat_id[$id]} ]]; then
+            ShellBot.deleteMessage --chat_id ${message_chat_id[$id]} --message_id ${message_message_id[$id]}
+            ShellBot.sendMessage --chat_id ${message_chat_id[$id]} \
+                            --text "*LISTA COMPLETA*" \
+                            --parse_mode markdown \
+                            --reply_markup "$keyboard_go_shopping"
+        else
+            ShellBot.deleteMessage --chat_id ${callback_query_message_chat_id[$id]} --message_id ${callback_query_message_message_id[$id]}
+            ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} \
+                            --text "*LISTA COMPLETA*" \
+                            --parse_mode markdown \
+                            --reply_markup "$keyboard_go_shopping"
+        fi
+    else
+        message="*Lista Vazia!*"
+        ShellBot.deleteMessage --chat_id ${message_chat_id[$id]} --message_id ${message_message_id[$id]}
+        ShellBot.sendMessage --chat_id ${message_chat_id[$id]} \
+                            --text "$(echo -e ${message})" \
+                            -- parse_mode markdown
+    fi      
 }
 
-# procura no site do tenda atacado e retorna o primeiro resultado do produto e preço
-listar.preco() {
-  local product_name first_found product_price message
+listar.go_botoes() {
+    local file_list float_message count folder
 
-  #product_name=${message_text/ /%20}
-  product_name=${callback_query_message_text/ /%20}
-  echo "site ---> ${TENDA_SUP_URL}/${product_name}"
-  echo ${product_name}
-  
-  first_found="$(curl -sSS ${TENDA_SUP_URL}/${product_name} | grep "escaped-name" | cut -d'>' -f2 | cut -d'<' -f1 | head -1)"
-  echo ${first_found}
-  product_price="$(curl -sSS ${TENDA_SUP_URL}/${product_name} | grep -A11 "${first_found}" | tail -1 | sed "s:[\t ]::g")"
+    folder="${callback_query_message_chat_id[$id]//-/}"    
+    file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    
+    botao_edit_shopping=''
 
-  echo ${product_price}
+    if [[ -f "${file_list}" ]]; then
+        if [[ "$(echo ${callback_query_data[$id]} | grep ${_WARN})" ]]; then
+            sed -i "s/${callback_query_data}/${_OK}\,${callback_query_data##*,}/" ${file_list}
+            float_message="item comprado..."
+        fi
+        if [[ "$(echo ${callback_query_data[$id]} | grep ${_OK})" ]]; then
+            sed -i "s/${callback_query_data}/${_WARN}\,${callback_query_data##*,}/" ${file_list}
+            float_message="item retornado..."
+        fi
+        
+        count=1
+        while read line; do
+            rem=$(( ${count} % 3))
+            if [[ ${rem} -eq 0 ]]; then
+                count=$((count+1))
+                ShellBot.InlineKeyboardButton --button 'botao_edit_shopping' \
+                    --text "$(echo ${line} | tr ',' ' ')" \
+                    --callback_data "${line}" --line ${count}
+            else
+                ShellBot.InlineKeyboardButton --button 'botao_edit_shopping' \
+                    --text "$(echo ${line} | tr ',' ' ')" \
+                    --callback_data "${line}" --line ${count}                
+                count=$((count+1))
+            fi
+        done < ${file_list}
+    fi
+    
+    ShellBot.InlineKeyboardButton --button 'botao_edit_shopping' \
+        --text "${_CART} - Finalizar" \
+        --callback_data "_concluir" \
+        --line 999
+    ShellBot.InlineKeyboardButton --button 'botao_edit_shopping' \
+        --text "-= Refresh =-" \
+        --callback_data "Refresh" \
+        --line 999
 
-  if [[ ${first_found} ]] && [[ ${product_price} ]]; then
-          message="Você pode encontrar ${product_name} no *\`TENDA ATACADISTA\`*\n\n"
-          message+="*Produto/Marca:* ${first_found//[&#]/}\n\n"
-          message+="*Preço:* ---> ${product_price}"
+    keyboard_edit_shopping="$(ShellBot.InlineKeyboardMarkup -b 'botao_edit_shopping')"
 
-          ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]}
-          ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} \
-                              --text "$(echo -e ${message})" --parse_mode markdown
-  else
-          message="Produto não encontrado..."
-          ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]}
-          ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} \
-                              --text "$(echo -e ${message})" --parse_mode markdown
-  fi
+    ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]} --text "${float_message}"
+    ShellBot.editMessageReplyMarkup --chat_id ${callback_query_message_chat_id[$id]} \
+                        --message_id ${callback_query_message_message_id[$id]} \
+                        --reply_markup "$keyboard_edit_shopping"
+}
 
+listar.concluir() {
+    local file_list folder
+    
+    folder="${callback_query_message_chat_id[$id]//-/}"    
+    file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+
+    botao_confirmar=''
+
+    ShellBot.InlineKeyboardButton --button 'botao_confirmar' \
+        --text "SIM" \
+        --callback_data "_concluir_sim" \
+        --line 1
+
+    ShellBot.InlineKeyboardButton --button 'botao_confirmar' \
+        --text "NÃO" \
+        --callback_data "_concluir_nao" \
+        --line 1
+        
+    keyboard_confirmar="$(ShellBot.InlineKeyboardMarkup -b 'botao_confirmar')"
+    
+    ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]} \
+            --text "chega por hoje..."
+    
+    ShellBot.deleteMessage --chat_id ${callback_query_message_chat_id[$id]} \
+                        --message_id ${callback_query_message_message_id[$id]}
+    
+    ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} \
+                        --text "*Deseja finalizar a compra?*" \
+                        --parse_mode markdown \
+                        --reply_markup "$keyboard_confirmar"
+}
+
+listar.sim() {
+
+    ShellBot.deleteMessage --chat_id ${callback_query_message_chat_id[$id]} --message_id ${callback_query_message_message_id[$id]}    
+    message="Valor Total da Compra:"
+  	ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} --text "$(echo -e ${message})" \
+        				--reply_markup "$(ShellBot.ForceReply)"
+}
+
+listar.valor_total() {
+    local file_list doc total _chat_id
+
+    total=$1
+    folder="${message_chat_id[$id]//-/}"    
+    file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    doc=${file_list%%_*}$(date +%Y%m%d-%H%M%S).csv
+
+    mv ${file_list} ${doc}
+
+    ShellBot.deleteMessage --chat_id ${message_reply_to_message_chat_id[$id]} \
+                        --message_id ${message_reply_to_message_message_id[$id]}
+
+    echo "Total,${total//,/.}" >> ${doc}
+
+    ShellBot.sendMessage --chat_id ${message_reply_to_message_chat_id[$id]} \
+                        --text "*Resumo da compra realizado em $(date +%d) do $(date +%m)*" \
+                        --parse_mode markdown
+    ShellBot.sendDocument --chat_id ${message_reply_to_message_chat_id[$id]} \
+							--document @${doc}
 }
