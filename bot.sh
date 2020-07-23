@@ -28,7 +28,7 @@ do
 
             if [[ ${message_entities_type[$id]} == bot_command ]] && [[ -z ${callback_query_data} ]]; then
                 case ${message_text[$id]%%@*} in
-                    /verlista) listar.go_shopping ;;
+                    /verlista|/goshopping) listar.go_shopping ;;
                     /start|/help) start.message ;;
                 esac
             fi
