@@ -4,6 +4,7 @@ _WARN="⚠️"
 _OK="✅"
 _LUPA="🔍"
 _CART="🛒"
+_REFRESH="🔄"
 
 listar.compras(){
         local item file_list folder
@@ -57,7 +58,7 @@ listar.go_shopping() {
             --callback_data "_concluir" \
             --line 999
         ShellBot.InlineKeyboardButton --button 'botao_go_shopping'\
-            --text "-= Refresh =-" \
+            --text "${_REFRESH} - Refresh" \
             --callback_data "Refresh" \
             --line 999
 
@@ -130,7 +131,7 @@ listar.go_botoes() {
         --callback_data "_concluir" \
         --line 999
     ShellBot.InlineKeyboardButton --button 'botao_edit_shopping' \
-        --text "-= Refresh =-" \
+        --text "${_REFRESH} - Refresh" \
         --callback_data "Refresh" \
         --line 999
 
