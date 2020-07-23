@@ -1,0 +1,5 @@
+*Bem vindos*\n
+Eu sou o bot que te ajuda nas suas idas ao mercado.\n
+É só começar a escrever os itens da lista para mim.\n
+Depois, a qualqer momento, é só verificar a lista com o comando:\n
+/verlista

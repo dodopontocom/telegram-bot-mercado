@@ -19,4 +19,6 @@ helper.get_api
 exitOnError "Erro ao tentar baixar API ShellBot" $?
 
 # Fazer source da API só depois de baixá-la
-source ${BASEDIR}/configurations/keyboards.sh
+#source ${BASEDIR}/configurations/keyboards.sh
+source ${BASEDIR}/ShellBot.sh
+ShellBot.init --token "${TELEGRAM_TOKEN}" --monitor --flush
