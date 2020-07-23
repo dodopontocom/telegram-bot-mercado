@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 _WARN="⚠️"
 _OK="✅"
@@ -9,8 +9,13 @@ listar.compras(){
         local item file_list folder
         item=$1
         
-        folder="${message_chat_id[$id]//-/}"
-        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+        if [[ ${callback_query_message_chat_id[$id]} ]]; then
+            folder="${callback_query_message_chat_id[$id]//-/}"
+            file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+        else
+            folder="${message_chat_id[$id]//-/}"
+            file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+        fi
 
         if [[ ! -f "${file_list}" ]]; then
             mkdir -p ${file_list%%_*}
@@ -83,8 +88,13 @@ listar.go_shopping() {
 listar.go_botoes() {
     local file_list float_message count folder
 
-    folder="${callback_query_message_chat_id[$id]//-/}"    
-    file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    if [[ ${callback_query_message_chat_id[$id]} ]]; then
+        folder="${callback_query_message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    else
+        folder="${message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    fi
     
     botao_edit_shopping=''
 
@@ -135,8 +145,13 @@ listar.go_botoes() {
 listar.concluir() {
     local file_list folder
     
-    folder="${callback_query_message_chat_id[$id]//-/}"    
-    file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    if [[ ${callback_query_message_chat_id[$id]} ]]; then
+        folder="${callback_query_message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    else
+        folder="${message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    fi
 
     botao_confirmar=''
 
