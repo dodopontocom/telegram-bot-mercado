@@ -196,7 +196,22 @@ listar.valor_total() {
     file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
     doc=${file_list%%_*}$(date +%Y%m%d-%H%M%S).csv
 
-    mv ${file_list} ${doc}
+    while IFS= read -r line || [[ -n "$line" ]]; do
+	    if [[ $(echo ${line} | grep ${_OK}) ]]; then
+		    echo ${line} >> ${doc}
+	    else
+		    echo ${line} >> ${file_list}_back
+	    fi
+    done < ${file_list}
+
+    if [[ -f "${file_list}_back" ]]; then mv ${file_list}_back ${file_list}; fi
+    if [[ $(cat ${file_list} | grep "${_WARN}") ]]; then
+    	ShellBot.sendMessage --chat_id ${message_reply_to_message_chat_id[$id]} \
+                        --text "Não se esquece que ainda há itens na lista!\nPara ver os itens que ainda não foram comprados clique aqui /verlista" \
+                        --parse_mode markdown
+    else
+    	rm -fr ${file_list}
+    fi
 
     ShellBot.deleteMessage --chat_id ${message_reply_to_message_chat_id[$id]} \
                         --message_id ${message_reply_to_message_message_id[$id]}
