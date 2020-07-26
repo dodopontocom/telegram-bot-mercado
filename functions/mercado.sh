@@ -262,7 +262,7 @@ listar.editar() {
 
     if [[ -f "${file_list}" ]] && [[ -z "${_item}" ]]; then
         message="Qual item:"
-  	    ShellBot.sendMessage --chat_id ${message_reply_to_message_chat_id[$id]} --text "$(echo -e ${message})" \
+  	    ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} --text "$(echo -e ${message})" \
         				--reply_markup "$(ShellBot.ForceReply)"
     elif [[ ! -f "${file_list}" ]] && [[ -z "${_item}" ]]; then
         float_message="Sem item na lista atual..."
