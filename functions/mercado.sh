@@ -82,7 +82,7 @@ listar.go_shopping() {
         ShellBot.deleteMessage --chat_id ${message_chat_id[$id]} --message_id ${message_message_id[$id]}
         ShellBot.sendMessage --chat_id ${message_chat_id[$id]} \
                             --text "$(echo -e ${message})" \
-                            -- parse_mode markdown
+                            --parse_mode markdown
     fi      
 }
 
@@ -153,31 +153,44 @@ listar.concluir() {
         folder="${message_chat_id[$id]//-/}"
         file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
     fi
+	
+    if [[ $(cat ${file_list} | grep "${_OK}") ]]; then
 
-    botao_confirmar=''
+	    botao_confirmar=''
 
-    ShellBot.InlineKeyboardButton --button 'botao_confirmar' \
-        --text "SIM" \
-        --callback_data "_concluir_sim" \
-        --line 1
-
-    ShellBot.InlineKeyboardButton --button 'botao_confirmar' \
-        --text "NÃO" \
-        --callback_data "_concluir_nao" \
-        --line 1
+	    ShellBot.InlineKeyboardButton --button 'botao_confirmar' \
+        	--text "SIM" \
+	        --callback_data "_concluir_sim" \
+        	--line 1
+	
+	    ShellBot.InlineKeyboardButton --button 'botao_confirmar' \
+        	--text "NÃO" \
+	        --callback_data "_concluir_nao" \
+        	--line 1
         
-    keyboard_confirmar="$(ShellBot.InlineKeyboardMarkup -b 'botao_confirmar')"
+	    keyboard_confirmar="$(ShellBot.InlineKeyboardMarkup -b 'botao_confirmar')"
     
-    ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]} \
-            --text "chega por hoje..."
+	    ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]} \
+        	    --text "chega por hoje..."
     
-    ShellBot.deleteMessage --chat_id ${callback_query_message_chat_id[$id]} \
-                        --message_id ${callback_query_message_message_id[$id]}
+	    ShellBot.deleteMessage --chat_id ${callback_query_message_chat_id[$id]} \
+        	                --message_id ${callback_query_message_message_id[$id]}
     
-    ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} \
-                        --text "*Deseja finalizar a compra?*" \
-                        --parse_mode markdown \
-                        --reply_markup "$keyboard_confirmar"
+	    ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} \
+        	                --text "*Deseja finalizar a compra?*" \
+                	        --parse_mode markdown \
+                        	--reply_markup "$keyboard_confirmar"
+    else
+	    ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]} \
+            --text "nenhum item comprado..."
+
+            ShellBot.deleteMessage --chat_id ${callback_query_message_chat_id[$id]} \
+                                --message_id ${callback_query_message_message_id[$id]}
+
+            ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} \
+                                --text "Estou *escondendo* a lista, mas pode chamá-la novamente com o comando /verlista" \
+                                --parse_mode markdown
+    fi
 }
 
 listar.sim() {
