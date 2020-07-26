@@ -282,6 +282,14 @@ listar.editar() {
 listar.aplicar() {
     local file_list folder message _item _new_item float_message
 
+    if [[ ${message_reply_to_message_chat_id[$id]} ]]; then
+        folder="${message_reply_to_message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    else
+        folder="${message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    fi
+
     _new_item=$1
     _item="$(head -1 ${file_list}_edit)"
     rm -fr ${file_list}_edit
