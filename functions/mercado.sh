@@ -139,7 +139,7 @@ listar.go_botoes() {
         --text "${_REFRESH} - Refresh" \
         --callback_data "Refresh" \
         --line 999
-    ShellBot.InlineKeyboardButton --button 'botao_go_shopping'\
+    ShellBot.InlineKeyboardButton --button 'botao_edit_shopping'\
             --text "${_EDIT} - Editar" \
             --callback_data "_edit" \
             --line 999
