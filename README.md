@@ -1,4 +1,4 @@
-# telegram-bot-mercado
+# Telegram bot mercado
 Vai fazer a compra da casa? faça sua lista do mercado e leve o bot com você.
 
 # Live Demo
