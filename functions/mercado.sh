@@ -268,7 +268,7 @@ listar.editar() {
         float_message="Sem item na lista atual..."
         ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]} --text "${float_message}"
     else
-        has_item="$(cat ${file_list} | grep "${_item}")"
+        has_item="$(cat ${file_list} | grep -o "${_item}")"
         if [[ "${has_item}" ]]; then
             echo "${has_item}" >> ${file_list}_edit
             message="Editar para:"
