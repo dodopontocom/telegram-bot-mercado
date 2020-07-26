@@ -24,6 +24,7 @@ do
                 _concluir) listar.concluir ;;
                 _concluir_sim) listar.sim ;;
                 _concluir_nao) listar.go_shopping ;;
+                _edit) listar.editar ;;
             esac
 
             if [[ ${message_entities_type[$id]} == bot_command ]] && [[ -z ${callback_query_data} ]]; then
@@ -40,6 +41,8 @@ do
             if [[ ${message_reply_to_message_message_id[$id]} ]]; then
                 case ${message_reply_to_message_text[$id]} in
                     'Valor Total da Compra:') listar.valor_total "${message_text[$id]}" ;;
+                    'Qual item:') listar.editar "${message_text[$id]}" ;;
+                    'Editar para:') listar.aplicar "${message_text[$id]}" ;;
                 esac
             fi
 	    ) &

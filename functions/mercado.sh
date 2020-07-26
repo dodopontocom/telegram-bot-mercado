@@ -5,6 +5,7 @@ _OK="✅"
 _LUPA="🔍"
 _CART="🛒"
 _REFRESH="🔄"
+_EDIT="✍️"
 
 listar.compras(){
         local item file_list folder
@@ -60,6 +61,10 @@ listar.go_shopping() {
         ShellBot.InlineKeyboardButton --button 'botao_go_shopping'\
             --text "${_REFRESH} - Refresh" \
             --callback_data "Refresh" \
+            --line 999
+        ShellBot.InlineKeyboardButton --button 'botao_go_shopping'\
+            --text "${_EDIT} - Editar" \
+            --callback_data "_edit" \
             --line 999
 
         keyboard_go_shopping="$(ShellBot.InlineKeyboardMarkup -b 'botao_go_shopping')"
@@ -134,6 +139,10 @@ listar.go_botoes() {
         --text "${_REFRESH} - Refresh" \
         --callback_data "Refresh" \
         --line 999
+    ShellBot.InlineKeyboardButton --button 'botao_go_shopping'\
+            --text "${_EDIT} - Editar" \
+            --callback_data "_edit" \
+            --line 999
 
     keyboard_edit_shopping="$(ShellBot.InlineKeyboardMarkup -b 'botao_edit_shopping')"
 
@@ -184,10 +193,10 @@ listar.concluir() {
 	    ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]} \
             --text "nenhum item comprado..."
 
-            ShellBot.deleteMessage --chat_id ${callback_query_message_chat_id[$id]} \
+        ShellBot.deleteMessage --chat_id ${callback_query_message_chat_id[$id]} \
                                 --message_id ${callback_query_message_message_id[$id]}
 
-            ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} \
+        ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} \
                                 --text "Estou *escondendo* a lista, mas pode chamá-la novamente com o comando /verlista" \
                                 --parse_mode markdown
     fi
@@ -236,4 +245,55 @@ listar.valor_total() {
                         --parse_mode markdown
     ShellBot.sendDocument --chat_id ${message_reply_to_message_chat_id[$id]} \
 							--document @${doc}
+}
+
+listar.editar() {
+    local file_list folder message _item float_message
+
+    _item=$1
+    
+    if [[ ${callback_query_message_chat_id[$id]} ]]; then
+        folder="${callback_query_message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    else
+        folder="${message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    fi
+
+    if [[ -f "${file_list}" ]] && [[ -z "${_item}" ]]; then
+        message="Qual item:"
+  	    ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} --text "$(echo -e ${message})" \
+        				--reply_markup "$(ShellBot.ForceReply)"
+    elif [[ ! -f "${file_list}" ]] && [[ -z "${_item}" ]]; then
+        float_message="Sem item na lista atual..."
+        ShellBot.answerCallbackQuery --callback_query_id ${callback_query_id[$id]} --text "${float_message}"
+    else
+        has_item="$(cat ${file_list} | grep "${_item}")"
+        if [[ "${has_item}" ]]; then
+            echo "${has_item}" >> ${file_list}_edit
+            message="Editar para:"
+  	        ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} --text "$(echo -e ${message})" \
+        				--reply_markup "$(ShellBot.ForceReply)"
+        fi
+    fi
+
+}
+
+listar.aplicar() {
+    local file_list folder message _item _new_item float_message
+
+    _new_item=$1
+    _item="$(head -1 ${file_list}_edit)"
+    rm -fr ${file_list}_edit
+    
+    if [[ ${callback_query_message_chat_id[$id]} ]]; then
+        folder="${callback_query_message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    else
+        folder="${message_chat_id[$id]//-/}"
+        file_list="${BOT_PRECOS_FILE}/${folder}/_list.log"
+    fi
+
+    sed -i "s/${_item}/${_new_item}/" ${file_list}
+
 }
