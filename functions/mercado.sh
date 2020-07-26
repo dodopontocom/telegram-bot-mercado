@@ -229,7 +229,7 @@ listar.valor_total() {
     if [[ -f "${file_list}_back" ]]; then mv ${file_list}_back ${file_list}; fi
     if [[ $(cat ${file_list} | grep "${_WARN}") ]]; then
     	ShellBot.sendMessage --chat_id ${message_reply_to_message_chat_id[$id]} \
-                        --text "Não se esquece que ainda há itens na lista!\nPara ver os itens que ainda não foram comprados clique aqui /verlista" \
+                        --text "Não se esqueça que ainda há itens na lista!\nPara ver os itens que ainda não foram comprados clique aqui /verlista" \
                         --parse_mode markdown
     else
     	rm -fr ${file_list}
@@ -262,7 +262,7 @@ listar.editar() {
 
     if [[ -f "${file_list}" ]] && [[ -z "${_item}" ]]; then
         message="Qual item:"
-  	    ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} --text "$(echo -e ${message})" \
+  	    ShellBot.sendMessage --chat_id ${message_reply_to_message_chat_id[$id]} --text "$(echo -e ${message})" \
         				--reply_markup "$(ShellBot.ForceReply)"
     elif [[ ! -f "${file_list}" ]] && [[ -z "${_item}" ]]; then
         float_message="Sem item na lista atual..."
@@ -272,7 +272,7 @@ listar.editar() {
         if [[ "${has_item}" ]]; then
             echo "${has_item}" >> ${file_list}_edit
             message="Editar para:"
-  	        ShellBot.sendMessage --chat_id ${callback_query_message_chat_id[$id]} --text "$(echo -e ${message})" \
+  	        ShellBot.sendMessage --chat_id ${message_reply_to_message_chat_id[$id]} --text "$(echo -e ${message})" \
         				--reply_markup "$(ShellBot.ForceReply)"
         fi
     fi
