@@ -1,5 +1,5 @@
 export TELEGRAM_TOKEN=""
 export NOTIFICATION_IDS=""
-export PRECOS_GROUP_ID=""
+export BOT_PRECOS_FILE=""
 export API_VERSION_RAW_URL="https://raw.githubusercontent.com/shellscriptx/shellbot/master/ShellBot.sh"
 export API_GIT_URL="git@github.com:shellscriptx/shellbot.git"
